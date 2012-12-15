@@ -1,3 +1,4 @@
 target/
 .settings
 mvnp.sh
+.classpath

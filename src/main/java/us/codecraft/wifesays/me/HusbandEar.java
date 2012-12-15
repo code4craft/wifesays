@@ -125,7 +125,7 @@ public class HusbandEar implements TextProcessor, BeanPostProcessor,
 	 */
 	@Override
 	public void afterPropertiesSet() throws Exception {
-		new Thread(new Runnable() {
+		Thread thread = new Thread(new Runnable() {
 
 			@Override
 			public void run() {
@@ -133,7 +133,9 @@ public class HusbandEar implements TextProcessor, BeanPostProcessor,
 				assignJobs();
 				start();
 			}
-		}).start();
+		});
+		thread.setDaemon(true);
+		thread.start();
 	}
 
 	/*
