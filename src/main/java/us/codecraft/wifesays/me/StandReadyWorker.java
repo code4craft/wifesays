@@ -6,7 +6,7 @@ import java.util.List;
  * @author yihua.huang@dianping.com
  * @date Dec 19, 2012
  */
-public abstract class StandyReadyWorker implements StandReady {
+public abstract class StandReadyWorker implements StandReady {
 
 	/*
 	 * (non-Javadoc)
