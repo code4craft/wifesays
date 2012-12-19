@@ -59,7 +59,9 @@ public class HusbandEar implements TextProcessor, BeanPostProcessor,
 		for (StandReady standReady : listeners) {
 			List<JobTodo> jobsForThisListener = new LinkedList<JobTodo>();
 			for (JobTodo jobTodo : jobs) {
-				if (standReady.whatKindOfJobWillYouDo().isInstance(jobTodo)) {
+				if (standReady.whatKindOfJobWillYouDo() != null
+						&& standReady.whatKindOfJobWillYouDo().isInstance(
+								jobTodo)) {
 					jobsForThisListener.add(jobTodo);
 				}
 			}
