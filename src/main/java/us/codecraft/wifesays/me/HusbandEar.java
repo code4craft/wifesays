@@ -56,16 +56,20 @@ public class HusbandEar implements TextProcessor, BeanPostProcessor,
 	}
 
 	private void assignJobs() {
-		for (StandReady standReady : listeners) {
-			List<JobTodo> jobsForThisListener = new LinkedList<JobTodo>();
-			for (JobTodo jobTodo : jobs) {
-				if (standReady.whatKindOfJobWillYouDo() != null
-						&& standReady.whatKindOfJobWillYouDo().isInstance(
-								jobTodo)) {
-					jobsForThisListener.add(jobTodo);
+		try {
+			for (StandReady standReady : listeners) {
+				List<JobTodo> jobsForThisListener = new LinkedList<JobTodo>();
+				for (JobTodo jobTodo : jobs) {
+					if (standReady.whatKindOfJobWillYouDo() != null
+							&& standReady.whatKindOfJobWillYouDo().isInstance(
+									jobTodo)) {
+						jobsForThisListener.add(jobTodo);
+					}
 				}
+				standReady.setJobs(jobsForThisListener);
 			}
-			standReady.setJobs(jobsForThisListener);
+		} catch (Throwable e) {
+			logger.warn("Opps! " + e);
 		}
 	}
 
@@ -77,11 +81,16 @@ public class HusbandEar implements TextProcessor, BeanPostProcessor,
 	@Override
 	public String process(String lineIn) {
 		logger.info("wife says \"" + lineIn + "\" ,what you should do?");
-		for (StandReady listener : listeners) {
-			String whatYouShouldDo = listener.doWhatYouShouldDo(lineIn);
-			if (whatYouShouldDo != null) {
-				return whatYouShouldDo;
+		try {
+			for (StandReady listener : listeners) {
+				String whatYouShouldDo = listener.doWhatYouShouldDo(lineIn);
+				if (whatYouShouldDo != null) {
+					return whatYouShouldDo;
+				}
 			}
+		} catch (Throwable e) {
+			logger.warn("Oops! Maybe not inited" + e);
+			assignJobs();
 		}
 		return "unkown command";
 	}
