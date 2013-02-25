@@ -122,12 +122,15 @@ public class WifeSays {
 			wifeSays.process();
 		} catch (ParseException e) {
 			System.out.println("parse command error " + e);
+			System.exit(-1);
 		} catch (UnknownHostException e) {
 			System.out.println("connnect to " + wifeSays.address + ":"
 					+ wifeSays.port + " failed " + e);
+			System.exit(-1);
 		} catch (IOException e) {
 			System.out.println("connnect to " + wifeSays.address + ":"
 					+ wifeSays.port + " failed " + e);
+			System.exit(-1);
 		}
 
 	}

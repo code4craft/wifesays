@@ -4,14 +4,19 @@ import java.util.List;
 import java.util.concurrent.ExecutorService;
 
 import org.apache.log4j.Logger;
+import org.springframework.beans.factory.InitializingBean;
 import org.springframework.stereotype.Component;
+
+import sun.misc.Signal;
+import sun.misc.SignalHandler;
 
 /**
  * @author yihua.huang@dianping.com
  * @date 2012-12-15
  */
+@SuppressWarnings("restriction")
 @Component
-public class ShutDownMonitor implements StandReady {
+public class ShutDownMonitor implements StandReady, InitializingBean {
 
 	private List<ShutDownAble> shutDownList;
 
@@ -31,38 +36,42 @@ public class ShutDownMonitor implements StandReady {
 	@Override
 	public String doWhatYouShouldDo(String whatWifeSays) {
 		if (Commands.SHUTDOWN.equalsIgnoreCase(whatWifeSays)) {
-			for (final ShutDownAble shutDownAble : shutDownList) {
-				shutDownExecutors.execute(new Runnable() {
+			return shutDown();
+		}
+		return null;
+	}
 
-					@Override
-					public void run() {
-						try {
-							shutDownAble.shutDown();
-						} catch (Throwable e) {
-							logger.warn("oops!My ears!", e);
-						}
-					}
-				});
-			}
-			logger.info("Application will shut down in " + delay
-					+ " seconds...");
-			new Thread(new Runnable() {
+	private String shutDown() {
+		for (final ShutDownAble shutDownAble : shutDownList) {
+			shutDownExecutors.execute(new Runnable() {
 
 				@Override
 				public void run() {
 					try {
-						Thread.sleep(delay * 1000);
-						logger.info("Shutting down success.");
-						System.exit(0);
+						shutDownAble.shutDown();
 					} catch (Throwable e) {
-						logger.error("Shutting down failed", e);
+						logger.warn("oops!My ears!", e);
 					}
 				}
-			}).start();
-			return "success";
+			});
 		}
-		return null;
+		logger.info("Application will shut down in " + delay + " seconds...");
+		Thread thread = new Thread(new Runnable() {
 
+			@Override
+			public void run() {
+				try {
+					Thread.sleep(delay * 1000);
+					logger.info("Shutting down success.");
+					System.exit(0);
+				} catch (Throwable e) {
+					logger.error("Shutting down failed", e);
+				}
+			}
+		});
+		thread.setDaemon(true);
+		thread.start();
+		return "success";
 	}
 
 	/*
@@ -84,6 +93,32 @@ public class ShutDownMonitor implements StandReady {
 	@Override
 	public void setJobs(List<? extends JobTodo> jobs) {
 		shutDownList = (List<ShutDownAble>) jobs;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * org.springframework.beans.factory.InitializingBean#afterPropertiesSet()
+	 */
+	@Override
+	public void afterPropertiesSet() throws Exception {
+		Signal.handle(new Signal("TERM"), new SignalHandler() {
+
+			@Override
+			public void handle(Signal arg0) {
+				shutDown();
+			}
+
+		});
+		Signal.handle(new Signal("INT"), new SignalHandler() {
+
+			@Override
+			public void handle(Signal arg0) {
+				shutDown();
+			}
+
+		});
 	}
 
 }

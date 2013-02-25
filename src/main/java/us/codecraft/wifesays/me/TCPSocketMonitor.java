@@ -46,7 +46,10 @@ public class TCPSocketMonitor extends Thread {
 
 				log.debug("TCP connection from "
 						+ socket.getRemoteSocketAddress());
-
+				if (!socket.getInetAddress().getHostAddress()
+						.equals("127.0.0.1")) {
+					continue;
+				}
 				executorService.execute(new TCPConnection(socket, husbandEar));
 
 			} catch (SocketException e) {
