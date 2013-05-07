@@ -103,22 +103,12 @@ public class ShutDownMonitor implements StandReady, InitializingBean {
 	 */
 	@Override
 	public void afterPropertiesSet() throws Exception {
-		Signal.handle(new Signal("TERM"), new SignalHandler() {
-
-			@Override
-			public void handle(Signal arg0) {
-				shutDown();
-			}
-
-		});
-		Signal.handle(new Signal("INT"), new SignalHandler() {
-
-			@Override
-			public void handle(Signal arg0) {
-				shutDown();
-			}
-
-		});
+        Runtime.getRuntime().addShutdownHook(new Thread(){
+            @Override
+            public void run() {
+                shutDown();
+            }
+        });
 	}
 
 }
