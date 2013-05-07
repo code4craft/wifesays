@@ -2,3 +2,5 @@ target/
 .settings
 mvnp.sh
 .classpath
+.idea/*
+*.iml

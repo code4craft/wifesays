@@ -29,6 +29,7 @@ public class TCPSocketMonitor extends Thread {
             System.err.println("Start tcp monitor failed, check whether port " + port + " is taken. Maybe an instance is already running");
         } catch (IOException e) {
             log.error("Start tcp monitor failed, check whether port " + port + " is taken. Maybe an instance is already running",e);
+            System.exit(-1);
         }
         this.setDaemon(true);
     }
