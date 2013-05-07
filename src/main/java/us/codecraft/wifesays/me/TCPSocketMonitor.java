@@ -26,8 +26,8 @@ public class TCPSocketMonitor extends Thread {
         try {
             this.addr = Inet4Address.getByName(host);
             serverSocket = new ServerSocket(port, 128, addr);
-            System.err.println("Start tcp monitor failed, check whether port " + port + " is taken. Maybe an instance is already running");
         } catch (IOException e) {
+            System.err.println("Start tcp monitor failed, check whether port " + port + " is taken. Maybe an instance is already running");
             log.error("Start tcp monitor failed, check whether port " + port + " is taken. Maybe an instance is already running",e);
             System.exit(-1);
         }
