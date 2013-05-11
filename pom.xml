@@ -52,7 +52,7 @@
 						<manifest>
 							<addClasspath>true</addClasspath>
 							<classpathPrefix>./</classpathPrefix>
-							<mainClass>us.codecraft.wifesays.wife.WifeSays</mainClass>
+							<mainClass>us.codecraft.wifesays.wife.Console</mainClass>
 						</manifest>
 					</archive>
 				</configuration>
