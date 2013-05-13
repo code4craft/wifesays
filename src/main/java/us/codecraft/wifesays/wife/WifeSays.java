@@ -6,7 +6,7 @@ import java.io.*;
 import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.net.UnknownHostException;
-import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.BlockingDeque;
 import java.util.concurrent.LinkedBlockingDeque;
 
 /**
@@ -36,7 +36,7 @@ public class WifeSays {
     /**
      * blockingQueue, make saying be async.
      */
-    private BlockingQueue<String> lines = new LinkedBlockingDeque<String>();
+    private BlockingDeque<String> lines = new LinkedBlockingDeque<String>();
 
     public void say(String line) {
         lines.add(line);
@@ -89,17 +89,14 @@ public class WifeSays {
                     while (line != null) {
                         try {
                             forward(line);
-                            if (lines.isEmpty()) {
-                                flush();
-                            }
+                            flush();
                         } catch (IOException e) {
-                            lines.add(line);
                             try {
                                 Thread.sleep(1000);
                                 reconnect();
-                                lines.add(line);
+                                lines.addLast(line);
                             } catch (IOException e1) {
-                                logger.error("reconnect error",e1);
+                                logger.error("reconnect error", e1);
                             } catch (InterruptedException e1) {
                                 logger.warn("wtf?!", e);
                             }
