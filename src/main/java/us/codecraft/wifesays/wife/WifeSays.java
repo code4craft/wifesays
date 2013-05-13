@@ -97,6 +97,7 @@ public class WifeSays {
                             try {
                                 Thread.sleep(1000);
                                 reconnect();
+                                lines.add(line);
                             } catch (IOException e1) {
                                 logger.error("reconnect error",e1);
                             } catch (InterruptedException e1) {
