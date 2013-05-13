@@ -1,9 +1,8 @@
 package us.codecraft.wifesays.wife;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.PrintWriter;
+import org.apache.log4j.Logger;
+
+import java.io.*;
 import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.net.UnknownHostException;
@@ -20,17 +19,19 @@ public class WifeSays {
 
     public static String DEFAULT_ADDRESS = "127.0.0.1";
 
-    private int port;
+    private int port = DEFAULT_PORT;
 
-    private String address;
+    private String address = DEFAULT_ADDRESS;
 
     private Socket socket;
 
     private BufferedReader socketReader;
 
-    private PrintWriter socketWriter;
+    private BufferedWriter socketWriter;
 
     private Thread forwardThread;
+
+    private Logger logger = Logger.getLogger(getClass());
 
     /**
      * blockingQueue, make saying be async.
@@ -41,11 +42,12 @@ public class WifeSays {
         lines.add(line);
     }
 
-    private void forward(String line) {
-        socketWriter.println(line);
+    private void forward(String line) throws IOException {
+        socketWriter.write(line);
+        socketWriter.newLine();
     }
 
-    private void flush() {
+    private void flush() throws IOException {
         socketWriter.flush();
     }
 
@@ -59,7 +61,17 @@ public class WifeSays {
         System.out.println("connnect to " + address + ":" + port + " success ");
         socketReader = new BufferedReader(new InputStreamReader(
                 socket.getInputStream()));
-        socketWriter = new PrintWriter(socket.getOutputStream());
+        socketWriter = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
+        startForwardThread();
+    }
+
+    public void reconnect() throws UnknownHostException, IOException {
+        socket = new Socket();
+        socket.connect(new InetSocketAddress(address, port));
+        System.out.println("reconnnect to " + address + ":" + port + " success ");
+        socketReader = new BufferedReader(new InputStreamReader(
+                socket.getInputStream()));
+        socketWriter = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
         startForwardThread();
     }
 
@@ -68,17 +80,36 @@ public class WifeSays {
             @Override
             public void run() {
                 while (true) {
+                    String line = null;
                     try {
-                        String line;
-                        while ((line = lines.take()) != null) {
+                        line = lines.take();
+                    } catch (InterruptedException e) {
+                        logger.warn("wtf?!", e);
+                    }
+                    while (line != null) {
+                        try {
                             forward(line);
                             if (lines.isEmpty()) {
                                 flush();
                             }
+                        } catch (IOException e) {
+                            lines.add(line);
+                            try {
+                                Thread.sleep(1000);
+                                reconnect();
+                            } catch (IOException e1) {
+                                logger.error("reconnect error",e1);
+                            } catch (InterruptedException e1) {
+                                logger.warn("wtf?!", e);
+                            }
                         }
-                    } catch (Exception e) {
-                        e.printStackTrace();
+                        try {
+                            line = lines.take();
+                        } catch (InterruptedException e) {
+                            logger.warn("wtf?!", e);
+                        }
                     }
+
                 }
             }
         };

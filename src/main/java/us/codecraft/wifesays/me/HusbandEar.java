@@ -89,7 +89,7 @@ public class HusbandEar implements TextProcessor, BeanPostProcessor,
 				}
 			}
 		} catch (Throwable e) {
-			logger.warn("Oops! Maybe not inited " + e);
+			logger.warn("Oops! Maybe not inited " , e);
 			assignJobs();
 		}
 		return "unkown command";
