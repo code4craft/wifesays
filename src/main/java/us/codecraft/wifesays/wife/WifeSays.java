@@ -8,6 +8,7 @@ import java.net.Socket;
 import java.net.UnknownHostException;
 import java.util.concurrent.BlockingDeque;
 import java.util.concurrent.LinkedBlockingDeque;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * @author yihua.huang@dianping.com
@@ -30,6 +31,8 @@ public class WifeSays {
     private BufferedWriter socketWriter;
 
     private Thread forwardThread;
+
+    private AtomicBoolean connected = new AtomicBoolean(false);
 
     private Logger logger = Logger.getLogger(getClass());
 
@@ -56,12 +59,8 @@ public class WifeSays {
     }
 
     public void connect() throws UnknownHostException, IOException {
-        socket = new Socket();
-        socket.connect(new InetSocketAddress(address, port));
-        System.out.println("connnect to " + address + ":" + port + " success ");
-        socketReader = new BufferedReader(new InputStreamReader(
-                socket.getInputStream()));
-        socketWriter = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
+        reconnect();
+        connected.set(true);
         startForwardThread();
     }
 
@@ -72,7 +71,14 @@ public class WifeSays {
         socketReader = new BufferedReader(new InputStreamReader(
                 socket.getInputStream()));
         socketWriter = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
-        startForwardThread();
+    }
+
+    public void setConnected(boolean connected) {
+        this.connected.set(connected);
+    }
+
+    public boolean isConnected() {
+        return this.connected.get();
     }
 
     private void startForwardThread() {
@@ -91,6 +97,7 @@ public class WifeSays {
                             forward(line);
                             flush();
                         } catch (IOException e) {
+                            connected.set(false);
                             try {
                                 Thread.sleep(1000);
                                 reconnect();
