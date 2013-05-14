@@ -60,7 +60,6 @@ public class WifeSays {
 
     public void connect() throws UnknownHostException, IOException {
         reconnect();
-        connected.set(true);
         startForwardThread();
     }
 
@@ -71,6 +70,7 @@ public class WifeSays {
         socketReader = new BufferedReader(new InputStreamReader(
                 socket.getInputStream()));
         socketWriter = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
+        connected.set(true);
     }
 
     public void setConnected(boolean connected) {
