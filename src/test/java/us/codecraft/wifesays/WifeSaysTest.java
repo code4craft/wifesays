@@ -1,6 +1,8 @@
-package us.codecraft.wifesays.wife;
+package us.codecraft.wifesays;
 
+import org.junit.Ignore;
 import org.junit.Test;
+import us.codecraft.wifesays.wife.WifeSays;
 
 import java.io.IOException;
 
@@ -11,6 +13,7 @@ import java.io.IOException;
  */
 public class WifeSaysTest {
 
+    @Ignore
     @Test
     public void test() throws InterruptedException {
         WifeSays wifeSays = new WifeSays();
