@@ -59,8 +59,9 @@ public class WifeSays {
     }
 
     public void connect() throws UnknownHostException, IOException {
-        reconnect();
         startForwardThread();
+        reconnect();
+
     }
 
     public void reconnect() throws UnknownHostException, IOException {
