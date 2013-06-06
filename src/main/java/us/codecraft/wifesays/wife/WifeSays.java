@@ -34,6 +34,8 @@ public class WifeSays {
 
     private AtomicBoolean connected = new AtomicBoolean(false);
 
+    private AtomicBoolean inited = new AtomicBoolean(false);
+
     private Logger logger = Logger.getLogger(getClass());
 
     /**
@@ -59,9 +61,12 @@ public class WifeSays {
     }
 
     public void connect() throws UnknownHostException, IOException {
-        startForwardThread();
-        reconnect();
-
+        try {
+            startForwardThread();
+            reconnect();
+        } finally {
+            inited.set(true);
+        }
     }
 
     public void reconnect() throws UnknownHostException, IOException {
@@ -87,6 +92,12 @@ public class WifeSays {
             @Override
             public void run() {
                 while (true) {
+                    while (!inited.get()){
+                        try {
+                            Thread.sleep(1000);
+                        } catch (InterruptedException e) {
+                        }
+                    }
                     String line = null;
                     try {
                         line = lines.take();
@@ -97,7 +108,7 @@ public class WifeSays {
                         try {
                             forward(line);
                             flush();
-                        } catch (IOException e) {
+                        } catch (Exception e) {
                             connected.set(false);
                             try {
                                 Thread.sleep(1000);
