@@ -72,7 +72,7 @@ public class WifeSays {
     public void reconnect() throws UnknownHostException, IOException {
         socket = new Socket();
         socket.connect(new InetSocketAddress(address, port));
-        logger.info("reconnnect to " + address + ":" + port + " success ");
+        logger.debug("reconnnect to " + address + ":" + port + " success ");
         socketReader = new BufferedReader(new InputStreamReader(
                 socket.getInputStream()));
         socketWriter = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
