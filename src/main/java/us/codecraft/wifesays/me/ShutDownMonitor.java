@@ -1,11 +1,11 @@
 package us.codecraft.wifesays.me;
 
-import java.util.List;
-import java.util.concurrent.ExecutorService;
-
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.stereotype.Component;
+
+import java.util.List;
+import java.util.concurrent.ExecutorService;
 
 
 /**
@@ -40,18 +40,20 @@ public class ShutDownMonitor implements StandReady, InitializingBean {
     }
 
     private String shutDown() {
-        for (final ShutDownAble shutDownAble : shutDownList) {
-            shutDownExecutors.execute(new Runnable() {
+        if (shutDownList != null) {
+            for (final ShutDownAble shutDownAble : shutDownList) {
+                shutDownExecutors.execute(new Runnable() {
 
-                @Override
-                public void run() {
-                    try {
-                        shutDownAble.shutDown();
-                    } catch (Throwable e) {
-                        logger.warn("oops!My ears!", e);
+                    @Override
+                    public void run() {
+                        try {
+                            shutDownAble.shutDown();
+                        } catch (Throwable e) {
+                            logger.warn("oops!My ears!", e);
+                        }
                     }
-                }
-            });
+                });
+            }
         }
         logger.info("Application will shut down in " + delay + " seconds...");
         Thread thread = new Thread(new Runnable() {
